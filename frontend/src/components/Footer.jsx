@@ -7,7 +7,7 @@ const Footer = () => {
         <hr className="border-bottom" />
         <p className="text-light text-center">
           {" "}
-          &copy; 2026 Built With DP btn btn-outline-info ❤️
+          &copy; 2026 Built With DP ❤️
         </p>
       </footer>
     </>
