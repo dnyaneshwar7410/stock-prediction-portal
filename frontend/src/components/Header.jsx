@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext} from "react";
 import Button from "./Button";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../AuthProvider";
@@ -23,9 +23,13 @@ const Header = () => {
         </Link>
         <div>
           {isLoggedIn ? (
-            <button className="btn btn-danger" onClick={handleLogout}>
-              Logot
-            </button>
+            <>
+              <Button text="Dashboard" class="btn-outline-info" url="/dashboard" />
+              &nbsp; &nbsp; &nbsp;
+              <button className="btn btn-danger" onClick={handleLogout}>
+                Logout
+              </button>
+            </>
           ) : (
             <>
               <Button text="Login" class="btn-outline-info" url="/login" />

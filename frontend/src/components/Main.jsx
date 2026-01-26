@@ -1,13 +1,14 @@
 import React from "react";
 import Button from "./Button";
-import Header from "./Header"
+import Header from "./Header";
 import Footer from "./Footer";
+// import { AuthContext } from "../AuthProvider";
+
 const Main = () => {
+  // const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
+
   return (
     <>
-     
-
-      
       {/* Main */}
       <div className="container">
         <div className="p-5 text-center bg-light-dark rounded">
@@ -18,12 +19,9 @@ const Main = () => {
             assumenda neque delectus at optio adipisci eligendi ab voluptas
             recusandae? Soluta ratione blanditiis vero.
           </p>
-       <Button  text = 'login'  class='btn-outline-warning' />
+          <Button text="Explore Now" class="btn-outline-info" url='/dashboard' />:
         </div>
       </div>
-
-
-    
     </>
   );
 };
