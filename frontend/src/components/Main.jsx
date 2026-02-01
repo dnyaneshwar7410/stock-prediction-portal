@@ -14,12 +14,21 @@ const Main = () => {
         <div className="p-5 text-center bg-light-dark rounded">
           <h1 className="text-light">Stock Prediction Portal</h1>
           <p className="text-white lead">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Similique
-            quisquam quas vitae exercitationem dignissimos perspiciatis, totam,
-            assumenda neque delectus at optio adipisci eligendi ab voluptas
-            recusandae? Soluta ratione blanditiis vero.
+            This portal uses a machine learning model to analyze historical
+            stock prices and predict the next day’s closing price. It also
+            visualizes trends using moving averages and evaluates model
+            performance using standard metrics.
           </p>
-          <Button text="Explore Now" class="btn-outline-info" url='/dashboard' />:
+          <small className="text-warning">
+            ⚠️ For educational purposes only. Not financial advice.
+          </small>
+          <br />
+          <Button
+            text="Explore Now"
+            class="btn-outline-info m-4"
+            url="/dashboard"
+          />
+          :
         </div>
       </div>
     </>
