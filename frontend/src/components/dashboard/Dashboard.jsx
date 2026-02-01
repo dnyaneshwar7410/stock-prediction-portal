@@ -1,58 +1,61 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+
+import React, { useState, useEffect } from "react";
 import axiosInstance from "../../axiosInstance";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 const Dashboard = () => {
   const [ticker, setTicker] = useState("");
-  const [error, setError] = useState();
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [plot, setPlot] = useState();
-  const [ma100, setMa100] = useState();
-  const [ma200, setMa200] = useState();
-  const [prediction, setPrediction] = useState();
-  const [mse, setMse] = useState();
-  const [rmse, setRmse] = useState();
-  const [r2, setR2] = useState();
+
+  const [plot, setPlot] = useState(null);
+  const [ma100, setMa100] = useState(null);
+  const [ma200, setMa200] = useState(null);
+  const [prediction, setPrediction] = useState(null);
+
+  const [mse, setMse] = useState(null);
+  const [rmse, setRmse] = useState(null);
+  const [r2, setR2] = useState(null);
+  const [tomorrowPrice, setTomorrowPrice] = useState(null);
 
   useEffect(() => {
-    const fetchProtectedData = async () => {
-      try {
-        const response = await axiosInstance.get("/protected-view/");
-      } catch (error) {
-        console.error("Error fetching data", error);
-      }
-    };
-    fetchProtectedData();
+    axiosInstance.get("/protected-view/").catch(() => {});
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    // Reset previous state
+    setError(null);
+    setPlot(null);
+    setMa100(null);
+    setMa200(null);
+    setPrediction(null);
+    setTomorrowPrice(null);
+
     try {
-      const response = await axiosInstance.post("/predict/", {
-        ticker: ticker,
-      });
-      console.log(response.data);
-      const backendRoot = import.meta.env.VITE_BACKEND_ROOT;
-      const plotUrl = `${backendRoot}${response.data.plot_img}`;
-      const ma100Url = `${backendRoot}${response.data.plot_100_dma}`;
-      const ma200Url = `${backendRoot}${response.data.plot_200_dma}`;
-      const predictionUrl = `${backendRoot}${response.data.plot_prediction}`;
-      setPlot(plotUrl);
-      setMa100(ma100Url);
-      setMa200(ma200Url);
-      setPrediction(predictionUrl);
-      setMse(response.data.mse);
-      setRmse(response.data.rmse);
-      setR2(response.data.r2);
+      const response = await axiosInstance.post("/predict/", { ticker });
 
       if (response.data.error) {
         setError(response.data.error);
+        return;
       }
-    } catch (error) {
-      console.error("There was an error making an api request", error);
+
+      const backendRoot = import.meta.env.VITE_BACKEND_ROOT;
+
+      setPlot(`${backendRoot}${response.data.plot_img}`);
+      setMa100(`${backendRoot}${response.data.plot_100_dma}`);
+      setMa200(`${backendRoot}${response.data.plot_200_dma}`);
+      setPrediction(`${backendRoot}${response.data.plot_prediction}`);
+
+      setMse(response.data.mse);
+      setRmse(response.data.rmse);
+      setR2(response.data.r2);
+      setTomorrowPrice(response.data.tomorrow_prediction);
+    } catch (err) {
+      setError("Server error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -65,48 +68,46 @@ const Dashboard = () => {
           <form onSubmit={handleSubmit}>
             <input
               type="text"
-              name=""
-              id=""
               className="form-control"
               placeholder="Enter Stock Ticker"
+              value={ticker}
               onChange={(e) => setTicker(e.target.value)}
             />
-            <small>{error && <div className="text-danger">{error}</div>}</small>
 
-            <button type="submit" className="btn btn-info mt-3">
+            {error && <div className="text-danger mt-2">{error}</div>}
+
+            <button
+              type="submit"
+              className="btn btn-info mt-3"
+              disabled={loading}
+            >
               {loading ? (
                 <span>
-                  <FontAwesomeIcon icon={faSpinner} spin /> Please Wait....
+                  <FontAwesomeIcon icon={faSpinner} spin /> Please wait...
                 </span>
               ) : (
                 "See Prediction"
               )}
             </button>
           </form>
-          {/* print prediction plots */}
 
-          {prediction && (
-            <div className="prediction">
-              <div className="p-3">
-                {plot && <img src={plot} style={{ maxWidth: "100%" }} />}
-              </div>
-              <div className="p-3">
-                {ma100 && <img src={ma100} style={{ maxWidth: "100%" }} />}
-              </div>
-              <div className="p-3">
-                {ma200 && <img src={ma200} style={{ maxWidth: "100%" }} />}
-              </div>
-              <div className="p-3">
-                {prediction && (
-                  <img src={prediction} style={{ maxWidth: "100%" }} />
-                )}
-              </div>
-              <div className="text-light p-3">
-                <h4>Model Evaluation</h4>
-                <p>Mean Squared Error (MSE) : {mse}</p>
-                <p>Root Mean Squared Error (RMSE) : {rmse}</p>
-                <p>R-Squared : {r2}</p>
-              </div>
+          {/* Prediction Section */}
+          
+          {prediction && !error && (
+            <div className="prediction mt-4">
+              <img src={plot} className="img-fluid mb-3" />
+              <img src={ma100} className="img-fluid mb-3" />
+              <img src={ma200} className="img-fluid mb-3" />
+              <img src={prediction} className="img-fluid mb-3" />
+
+              <h4>Model Evaluation</h4>
+              <p>MSE: {mse}</p>
+              <p>RMSE: {rmse}</p>
+              <p>R² Score: {r2}</p>
+              <p>
+                Tomorrow’s predicted price of <b>{ticker}</b>:{" "}
+                <b>{tomorrowPrice}</b>
+              </p>
             </div>
           )}
         </div>

@@ -106,6 +106,25 @@ class StockPredictionAPIView(APIView):
             y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).flatten()
 
 
+            # Tomorrow's Price Prediction
+
+            # Take last 100 closing prices
+            last_100_days = df.Close.tail(100).values.reshape(-1, 1)
+
+            # Scale the data
+            last_100_days_scaled = scaler.fit_transform(last_100_days)
+
+            # Reshape for LSTM input (1, 100, 1)
+            X_future = np.array([last_100_days_scaled])
+
+            # Predict tomorrow's price
+            tomorrow_pred_scaled = model.predict(X_future)
+
+            # Convert back to original price
+            tomorrow_price = scaler.inverse_transform(tomorrow_pred_scaled)[0][0]
+
+
+
             # Plot the final prediction
             plt.switch_backend('AGG')
             plt.figure(figsize=(12,6))
@@ -136,6 +155,7 @@ class StockPredictionAPIView(APIView):
                 'plot_100_dma':plot_100_dma,
                 'plot_200_dma':plot_200_dma,
                 'plot_prediction':plot_prediction,
+                'tomorrow_prediction': round(float(tomorrow_price), 2),
                 'r2': r2,
                 'mse':mse,
                 'rmse':rmse,
